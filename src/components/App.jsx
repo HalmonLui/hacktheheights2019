@@ -8,6 +8,7 @@ import {
   handlePendingSignIn,
   signUserOut
 } from "blockstack";
+import { Switch, Route } from "react-router-dom";
 
 export default class App extends Component {
   constructor(props) {
@@ -35,7 +36,14 @@ export default class App extends Component {
           {!isUserSignedIn() ? (
             <Signin handleSignIn={this.handleSignIn} />
           ) : (
-            <Profile handleSignOut={this.handleSignOut} />
+            <Switch>
+              <Route
+                path="/:username?"
+                render={routeProps => (
+                  <Profile handleSignOut={this.handleSignOut} {...routeProps} />
+                )}
+              />
+            </Switch>
           )}
         </div>
       </div>

@@ -59,39 +59,42 @@ export default class Profile extends Component {
                     </span>
                   </h1>
                   <span>{username}</span>
-                  <span>
-                    &nbsp;|&nbsp;
-                    <a onClick={handleSignOut.bind(this)}>(Logout)</a>
-                  </span>
+                  {this.isLocal() && (
+                    <span>
+                      &nbsp;|&nbsp;
+                      <a onClick={handleSignOut.bind(this)}>(Logout)</a>
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
-
-            <div className="new-status">
-              <div className="col-md-12 statuses">
-                {this.state.isLoading && <span>Loading...</span>}
-                {this.state.statuses.map(status => (
-                  <div className="status" key={status.id}>
-                    {status.text}
-                  </div>
-                ))}
+            {this.isLocal() && (
+              <div className="new-status">
+                <div className="col-md-12">
+                  <textarea
+                    className="input-status"
+                    value={this.state.newStatus}
+                    onChange={e => this.handleNewStatusChange(e)}
+                    placeholder="What's on your mind?"
+                  />
+                </div>
+                <div className="col-md-12 text-right">
+                  <button
+                    className="btn btn-primary btn-lg"
+                    onClick={e => this.handleNewStatusSubmit(e)}
+                  >
+                    Submit
+                  </button>
+                </div>
               </div>
-              <div className="col-md-12">
-                <textarea
-                  className="input-status"
-                  value={this.state.newStatus}
-                  onChange={e => this.handleNewStatusChange(e)}
-                  placeholder="Enter a status"
-                />
-              </div>
-              <div className="col-md-12">
-                <button
-                  className="btn btn-primary btn-lg"
-                  onClick={e => this.handleNewStatusSubmit(e)}
-                >
-                  Submit
-                </button>
-              </div>
+            )}
+            <div className="col-md-12 statuses">
+              {this.state.isLoading && <span>Loading...</span>}
+              {this.state.statuses.map(status => (
+                <div className="status" key={status.id}>
+                  {status.text}
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -140,19 +143,54 @@ export default class Profile extends Component {
   }
   fetchData() {
     this.setState({ isLoading: true });
-    const options = { decrypt: false };
-    getFile("statuses.json", options)
-      .then(file => {
-        var statuses = JSON.parse(file || "[]");
-        this.setState({
-          person: new Person(loadUserData().profile),
-          username: loadUserData().username,
-          statusIndex: statuses.length,
-          statuses: statuses
+    if (this.isLocal()) {
+      const options = { decrypt: false };
+      getFile("statuses.json", options)
+        .then(file => {
+          var statuses = JSON.parse(file || "[]");
+          this.setState({
+            person: new Person(loadUserData().profile),
+            username: loadUserData().username,
+            statusIndex: statuses.length,
+            statuses: statuses
+          });
+        })
+        .finally(() => {
+          this.setState({ isLoading: false });
         });
-      })
-      .finally(() => {
-        this.setState({ isLoading: false });
-      });
+    } else {
+      const username = this.props.match.params.username;
+
+      lookupProfile(username)
+        .then(profile => {
+          this.setState({
+            person: new Person(profile),
+            username: username
+          });
+        })
+        .catch(error => {
+          console.log("could not resolve profile");
+        });
+      const options = { username: username, decrypt: false };
+      getFile("statuses.json", options)
+        .then(file => {
+          var statuses = JSON.parse(file || "[]");
+          this.setState({
+            statusIndex: statuses.length,
+            statuses: statuses
+          });
+        })
+        .catch(error => {
+          console.log("could not fetch statuses");
+        })
+        .finally(() => {
+          this.setState({ isLoading: false });
+        });
+    }
+  }
+
+  //Check if viewing local user profile or other's profile
+  isLocal() {
+    return this.props.match.params.username ? false : true;
   }
 }
