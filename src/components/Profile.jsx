@@ -8,6 +8,7 @@ import {
   lookupProfile
 } from "blockstack";
 import ImageUploader from "react-images-upload";
+import Webcam from "react-webcam";
 
 const avatarFallbackImage =
   "https://s3.amazonaws.com/onename/avatar-placeholder.png";
@@ -44,6 +45,11 @@ export default class Profile extends Component {
     const Example = ({ data, name }) => (
       <img src={`data:image/jpeg;base64,${data}`} id={name} />
     );
+    const videoConstraints = {
+      width: 1280,
+      height: 720,
+      facingMode: "user"
+    };
 
     return !isSignInPending() && person ? (
       <div className="container">
@@ -87,6 +93,15 @@ export default class Profile extends Component {
                   />
                 </div>
                 <div className="col-md-12 text-right">
+                  <Webcam
+                    audio={false}
+                    height={350}
+                    ref={this.setRef}
+                    screenshotFormat="image/jpeg"
+                    width={350}
+                    videoConstraints={videoConstraints}
+                  />
+                  <button onClick={this.capture}>Capture photo</button>
                   <button
                     className="btn btn-primary btn-lg"
                     onClick={e => this.handleNewStatusSubmit(e)}

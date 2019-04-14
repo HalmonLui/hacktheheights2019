@@ -41,6 +41,7 @@
     "react": "^15.5.4",
     "react-dom": "^15.5.4",
     "react-images-upload": "^1.2.6",
-    "react-router-dom": "^5.0.0"
+    "react-router-dom": "^5.0.0",
+    "react-webcam": "^1.1.1"
   }
 }
