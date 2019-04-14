@@ -132,6 +132,10 @@ textarea {
 .new-status {
   text-align: right;
 }
+.inputImage {
+  background-color: transparent;
+  border: 1px solid lightgray;
+}
 
 /* Statuses */
 .otherSection {
@@ -150,7 +154,7 @@ textarea {
   border: 1px solid lightgray;
 }
 #statuses {
-  height: 50vh;
+  height: 60vh;
   overflow-y: scroll;
 }
 

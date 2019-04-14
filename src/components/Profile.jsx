@@ -127,27 +127,29 @@ export default class Profile extends Component {
                     placeholder="What's on your mind?"
                   />
                 </div>
-                <div className="col-md-12 text-right">
+                <div>
                   <button
                     className="btn btn-primary btn-lg"
                     onClick={e => this.handleNewStatusSubmit(e)}
                   >
                     Submit
                   </button>
-                </div>
-                <input
-                  type="file"
-                  name="pic"
-                  accept="image/*"
-                  onChange={e => this.handleNewImageChange(e)}
-                />
-                <div className="col-md-12 text-right">
-                  <button
-                    className="btn btn-primary btn-lg"
-                    onClick={e => this.handleNewImageSubmit(e)}
-                  >
-                    Image
-                  </button>
+
+                  <input
+                    type="file"
+                    name="pic"
+                    accept="image/*"
+                    id="inputImage"
+                    onChange={e => this.handleNewImageChange(e)}
+                  />
+                  <div className="col-md-12 text-right">
+                    <button
+                      className="btn btn-primary btn-lg"
+                      onClick={e => this.handleNewImageSubmit(e)}
+                    >
+                      Image
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
