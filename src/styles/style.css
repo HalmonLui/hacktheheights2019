@@ -78,6 +78,10 @@ body {
   margin-bottom: 25px;
   display: flex;
   text-align: left;
+  background: url("https://blog.oxforddictionaries.com/wp-content/uploads/mountain-names-1200x330.jpg");
+  background-color: rgba(0, 0, 0, 0.5);
+  background-position: 100px;
+  background-repeat: no-repeat;
 }
 .username {
   margin-left: 20px;
