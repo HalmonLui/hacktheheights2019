@@ -11,8 +11,9 @@ body {
   background-color: #191b22;
 }
 body {
-  color: #000000;
+  color: #ffffff;
   background-color: #ffffff;
+  background-image: linear-gradient(15deg, #13547a 0%, #80d0c7 100%);
 }
 .hide {
   display: none;
@@ -51,16 +52,17 @@ body {
   outline: none;
 }
 .btn-primary {
-  color: #000000;
-  border: 0.5px solid lightgray;
-  background-color: transparent;
+  color: #ffffff;
+  border: 0.5px solid white;
+  background-color: rgba(0, 0, 0, 0.1);
+  margin-left: 10px;
 }
 .btn-primary:hover,
 .btn-primary:focus,
 .btn-primary:active {
-  color: lightblue;
+  color: #000000;
   border: 1px solid lightblue;
-  background-color: transparent;
+  background-color: lightblue;
 }
 
 .main {
@@ -121,13 +123,15 @@ body {
 /* Input */
 input,
 textarea {
-  color: #000;
+  color: #ffffff;
   padding: 10px;
 }
 .input-status {
   width: 100%;
   height: 70px;
-  border-radius: 6px;
+  border: 1px solid white;
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.1);
 }
 .new-status {
   text-align: right;
@@ -135,6 +139,26 @@ textarea {
 .inputImage {
   background-color: transparent;
   border: 1px solid lightgray;
+}
+#buttonArea {
+}
+input[type="file"] {
+  display: none;
+}
+.custom-file-upload {
+  border: 1px solid #ffffff;
+  width: 600px;
+  text-align: center;
+  margin-top: 5px;
+  display: inline-block;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 5px;
+}
+.custom-file-upload:hover {
+  color: #000000;
+  border: 1px solid lightblue;
+  background-color: lightblue;
 }
 
 /* Statuses */
@@ -150,7 +174,7 @@ textarea {
 .status {
   margin: 15px 0px;
   padding: 20px;
-  background-color: transparent;
+  background-color: rgba(0, 0, 0, 0.2);
   border: 1px solid lightgray;
 }
 #statuses {
@@ -159,7 +183,9 @@ textarea {
 }
 
 /* Images */
+
 #images {
+  opacity: 0.9;
   height: 33vh;
   width: 33vh;
 }
@@ -171,6 +197,10 @@ textarea {
   width: 1px;
   height: 1px;
   z-index: 2;
+}
+#cameraButton:hover {
+  cursor: pointer;
+  opacity: 0.5;
 }
 .imagesContainer {
   position: absolute;

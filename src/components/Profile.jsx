@@ -12,6 +12,7 @@ import Webcam from "react-webcam";
 
 const avatarFallbackImage =
   "https://s3.amazonaws.com/onename/avatar-placeholder.png";
+const john = "https://i.imgur.com/wJP9wFE.png";
 
 export default class Profile extends Component {
   constructor(props) {
@@ -23,7 +24,7 @@ export default class Profile extends Component {
           return "Anonymous";
         },
         avatarUrl() {
-          return avatarFallbackImage;
+          return john;
         }
       },
       username: "",
@@ -96,16 +97,14 @@ export default class Profile extends Component {
           <div className="inputArea">
             <div className="avatar-section">
               <img
-                src={
-                  person.avatarUrl() ? person.avatarUrl() : avatarFallbackImage
-                }
+                src={person.avatarUrl() ? person.avatarUrl() : john}
                 className="img-rounded avatar"
                 id="avatar-image"
               />
               <div className="username">
                 <h1>
                   <span id="heading-name">
-                    {person.name() ? person.name() : "Nameless Person"}
+                    {person.name() ? person.name() : "John Abreu"}
                   </span>
                 </h1>
                 <span>{username}</span>
@@ -127,22 +126,25 @@ export default class Profile extends Component {
                     placeholder="What's on your mind?"
                   />
                 </div>
-                <div>
-                  <button
-                    className="btn btn-primary btn-lg"
-                    onClick={e => this.handleNewStatusSubmit(e)}
-                  >
-                    Submit
-                  </button>
-
-                  <input
-                    type="file"
-                    name="pic"
-                    accept="image/*"
-                    id="inputImage"
-                    onChange={e => this.handleNewImageChange(e)}
-                  />
+                <div id="buttonArea">
                   <div className="col-md-12 text-right">
+                    <label class="custom-file-upload">
+                      <input
+                        type="file"
+                        name="pic"
+                        accept="image/*"
+                        id="inputImage"
+                        onChange={e => this.handleNewImageChange(e)}
+                      />
+                      Custom Upload
+                    </label>
+
+                    <button
+                      className="btn btn-primary btn-lg"
+                      onClick={e => this.handleNewStatusSubmit(e)}
+                    >
+                      Submit
+                    </button>
                     <button
                       className="btn btn-primary btn-lg"
                       onClick={e => this.handleNewImageSubmit(e)}
@@ -226,7 +228,7 @@ export default class Profile extends Component {
 
     pictures.unshift(picture);
     const options = { encrypt: false };
-    putFile("picture1.json", JSON.stringify(pictures), options).then(() => {
+    putFile("picture2.json", JSON.stringify(pictures), options).then(() => {
       console.log("put the files");
       console.log(pictures);
       this.setState({
@@ -268,7 +270,7 @@ export default class Profile extends Component {
           });
         })
         .then(e => {
-          getFile("picture1.json", options).then(file => {
+          getFile("picture2.json", options).then(file => {
             console.log(file);
             var pictures = JSON.parse(file || "[]");
             console.log(pictures);
