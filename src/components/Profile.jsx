@@ -7,6 +7,7 @@ import {
   putFile,
   lookupProfile
 } from "blockstack";
+import ImageUploader from "react-images-upload";
 
 const avatarFallbackImage =
   "https://s3.amazonaws.com/onename/avatar-placeholder.png";
@@ -28,14 +29,30 @@ export default class Profile extends Component {
       newStatus: "",
       statuses: [],
       statusIndex: 0,
-      isLoading: false
+      isLoading: false,
+      pictures: [],
+      newPicture: null,
+      pictureIndex: 0,
+      itemArray: []
     };
+
+    this.onDrop = this.onDrop.bind(this);
+  }
+
+  onDrop(picture) {
+    this.setState({
+      pictures: this.state.pictures.concat(picture)
+    });
   }
 
   render() {
     const { handleSignOut } = this.props;
     const { person } = this.state;
     const { username } = this.state;
+
+    const Example = ({ data, name }) => (
+      <img src={`data:image/jpeg;base64,${data}`} id={name} />
+    );
 
     return !isSignInPending() && person ? (
       <div className="container">
@@ -86,15 +103,44 @@ export default class Profile extends Component {
                     Submit
                   </button>
                 </div>
+                <input
+                  type="file"
+                  name="pic"
+                  accept="image/*"
+                  onChange={e => this.handleNewImageChange(e)}
+                />
+                <div className="col-md-12 text-right">
+                  <button
+                    className="btn btn-primary btn-lg"
+                    onClick={e => this.handleNewImageSubmit(e)}
+                  >
+                    Image
+                  </button>
+                </div>
               </div>
             )}
-            <div className="col-md-12 statuses">
+            <div className="col-md-12 statuses" id="statuses">
               {this.state.isLoading && <span>Loading...</span>}
               {this.state.statuses.map(status => (
                 <div className="status" key={status.id}>
                   {status.text}
                 </div>
               ))}
+              {this.state.pictures.map(picture => (
+                <div className="status" key={picture.id}>
+                  <Example imageURL={picture.text} />
+                </div>
+              ))}
+              {this.state.itemArray.map((item, index) => {
+                return (
+                  <div className="box" key={index}>
+                    <div>
+                      <p>{item.text}</p>
+                      <img src={`data:image/jpeg;base64,${item.text}`} />
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -117,10 +163,58 @@ export default class Profile extends Component {
     this.setState({ newStatus: event.target.value });
   }
 
+  base64toImage() {
+    console.log(this.state.newPicture);
+    document.getElementById("test").imageURL = this.state.newPicture;
+  }
+
+  handleNewImageChange(event) {
+    var files = event.target.files;
+    var file = files[0];
+
+    if (files && file) {
+      var reader = new FileReader();
+
+      reader.onload = function(readerEvt) {
+        var binaryString = readerEvt.target.result;
+        var binaryResult = btoa(binaryString);
+        this.setState({ newPicture: binaryResult });
+      }.bind(this);
+
+      reader.readAsBinaryString(file);
+    }
+  }
+
   handleNewStatusSubmit(event) {
     this.saveNewStatus(this.state.newStatus);
     this.setState({
       newStatus: ""
+    });
+  }
+  handleNewImageSubmit(event) {
+    this.saveNewImage(this.state.newPicture);
+    this.setState({
+      newPicture: null
+    });
+  }
+  saveNewImage(pictureText) {
+    let pictures = this.state.pictures;
+
+    let picture = {
+      id: this.state.pictureIndex++,
+      text: pictureText,
+      created_at: Date.now()
+    };
+    const item = this.state.itemArray;
+    const text = this.state.newPicture;
+    item.push({ text });
+    this.setState({ itemArray: item });
+    pictures.unshift(picture);
+    const options = { encrypt: false };
+    putFile("picture.json", pictures, options).then(() => {
+      this.setState({
+        pictures: pictures
+      });
     });
   }
 

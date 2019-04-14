@@ -138,3 +138,7 @@ textarea {
   background-color: #2e2e2e;
   border-radius: 6px;
 }
+#statuses {
+  height: 50vh;
+  overflow-y: scroll;
+}
