@@ -16,7 +16,7 @@ const avatarFallbackImage =
 export default class Profile extends Component {
   constructor(props) {
     super(props);
-
+    this.setRef = React.createRef();
     this.state = {
       person: {
         name() {
@@ -33,8 +33,20 @@ export default class Profile extends Component {
       isLoading: false,
       pictures: [],
       newPicture: null,
-      pictureIndex: 0
+      pictureIndex: 0,
+      screenshot: null
     };
+    this.handleClick = this.handleClick.bind(this);
+  }
+
+  handleClick() {
+    console.log("made it");
+    var screenshot = this.webcam.getScreenshot();
+    screenshot = screenshot.slice(23);
+    this.setState({ screenshot: screenshot }, () => {
+      console.log(this.state.screenshot);
+      this.saveNewImage(this.state.screenshot);
+    });
   }
 
   render() {
@@ -96,12 +108,12 @@ export default class Profile extends Component {
                   <Webcam
                     audio={false}
                     height={350}
-                    ref={this.setRef}
+                    ref={node => (this.webcam = node)}
                     screenshotFormat="image/jpeg"
                     width={350}
                     videoConstraints={videoConstraints}
                   />
-                  <button onClick={this.capture}>Capture photo</button>
+                  <button onClick={this.handleClick}>Capture photo</button>
                   <button
                     className="btn btn-primary btn-lg"
                     onClick={e => this.handleNewStatusSubmit(e)}
@@ -201,7 +213,7 @@ export default class Profile extends Component {
       created_at: Date.now()
     };
 
-    const text = this.state.newPicture;
+    //const text = this.state.newPicture;
     //item.push({ text });
     //this.setState({ itemArray: item });
 
@@ -209,6 +221,7 @@ export default class Profile extends Component {
     const options = { encrypt: false };
     putFile("picture1.json", JSON.stringify(pictures), options).then(() => {
       console.log("put the files");
+      console.log(pictures);
       this.setState({
         pictures: pictures
       });
