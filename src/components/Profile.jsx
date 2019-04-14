@@ -58,40 +58,63 @@ export default class Profile extends Component {
       <img src={`data:image/jpeg;base64,${data}`} id={name} />
     );
     const videoConstraints = {
-      width: 1280,
-      height: 720,
+      width: 340,
+      height: 340,
       facingMode: "user"
     };
 
     return !isSignInPending() && person ? (
-      <div className="container">
-        <div className="row">
-          <div className="col-md-offset-3 col-md-6">
-            <div className="col-md-12">
-              <div className="avatar-section">
-                <img
-                  src={
-                    person.avatarUrl()
-                      ? person.avatarUrl()
-                      : avatarFallbackImage
-                  }
-                  className="img-rounded avatar"
-                  id="avatar-image"
-                />
-                <div className="username">
-                  <h1>
-                    <span id="heading-name">
-                      {person.name() ? person.name() : "Nameless Person"}
-                    </span>
-                  </h1>
-                  <span>{username}</span>
-                  {this.isLocal() && (
-                    <span>
-                      &nbsp;|&nbsp;
-                      <a onClick={handleSignOut.bind(this)}>(Logout)</a>
-                    </span>
-                  )}
+      <div className="main">
+        <div className="imageSection">
+          <a onClick={this.handleClick} id="cameraButton">
+            <Webcam
+              audio={false}
+              height={320}
+              ref={node => (this.webcam = node)}
+              screenshotFormat="image/jpeg"
+              width={320}
+              videoConstraints={videoConstraints}
+            />
+          </a>
+          <div className="imagesContainer">
+            {this.state.pictures.map((item, index) => {
+              return (
+                <div className="box" key={index}>
+                  <div>
+                    <img
+                      src={`data:image/jpeg;base64,${item.text}`}
+                      id="images"
+                    />
+                  </div>
                 </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="otherSection">
+          <div className="inputArea">
+            <div className="avatar-section">
+              <img
+                src={
+                  person.avatarUrl() ? person.avatarUrl() : avatarFallbackImage
+                }
+                className="img-rounded avatar"
+                id="avatar-image"
+              />
+              <div className="username">
+                <h1>
+                  <span id="heading-name">
+                    {person.name() ? person.name() : "Nameless Person"}
+                  </span>
+                </h1>
+                <span>{username}</span>
+                {this.isLocal() && (
+                  <span>
+                    &nbsp;|&nbsp;
+                    <a onClick={handleSignOut.bind(this)}>(Logout)</a>
+                  </span>
+                )}
               </div>
             </div>
             {this.isLocal() && (
@@ -105,15 +128,6 @@ export default class Profile extends Component {
                   />
                 </div>
                 <div className="col-md-12 text-right">
-                  <Webcam
-                    audio={false}
-                    height={350}
-                    ref={node => (this.webcam = node)}
-                    screenshotFormat="image/jpeg"
-                    width={350}
-                    videoConstraints={videoConstraints}
-                  />
-                  <button onClick={this.handleClick}>Capture photo</button>
                   <button
                     className="btn btn-primary btn-lg"
                     onClick={e => this.handleNewStatusSubmit(e)}
@@ -137,23 +151,14 @@ export default class Profile extends Component {
                 </div>
               </div>
             )}
-            <div className="col-md-12 statuses" id="statuses">
-              {this.state.isLoading && <span>Loading...</span>}
-              {this.state.statuses.map(status => (
-                <div className="status" key={status.id}>
-                  {status.text}
-                </div>
-              ))}
-              {this.state.pictures.map((item, index) => {
-                return (
-                  <div className="box" key={index}>
-                    <div>
-                      <img src={`data:image/jpeg;base64,${item.text}`} />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+          </div>
+          <div className="col-md-12 statuses" id="statuses">
+            {this.state.isLoading && <span>Loading...</span>}
+            {this.state.statuses.map(status => (
+              <div className="status" key={status.id}>
+                {status.text}
+              </div>
+            ))}
           </div>
         </div>
       </div>
