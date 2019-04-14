@@ -32,17 +32,8 @@ export default class Profile extends Component {
       isLoading: false,
       pictures: [],
       newPicture: null,
-      pictureIndex: 0,
-      itemArray: []
+      pictureIndex: 0
     };
-
-    this.onDrop = this.onDrop.bind(this);
-  }
-
-  onDrop(picture) {
-    this.setState({
-      pictures: this.state.pictures.concat(picture)
-    });
   }
 
   render() {
@@ -199,9 +190,10 @@ export default class Profile extends Component {
     //item.push({ text });
     //this.setState({ itemArray: item });
 
-    pictures.unshift({ text });
+    pictures.unshift(picture);
     const options = { encrypt: false };
-    putFile("picture.json", pictures, options).then(() => {
+    putFile("picture1.json", JSON.stringify(pictures), options).then(() => {
+      console.log("put the files");
       this.setState({
         pictures: pictures
       });
@@ -232,11 +224,23 @@ export default class Profile extends Component {
       getFile("statuses.json", options)
         .then(file => {
           var statuses = JSON.parse(file || "[]");
+          console.log("Got the statuses");
           this.setState({
             person: new Person(loadUserData().profile),
             username: loadUserData().username,
             statusIndex: statuses.length,
             statuses: statuses
+          });
+        })
+        .then(e => {
+          getFile("picture1.json", options).then(file => {
+            console.log(file);
+            var pictures = JSON.parse(file || "[]");
+            console.log(pictures);
+            console.log("got the pictures");
+            this.setState({
+              pictures: pictures
+            });
           });
         })
         .finally(() => {
