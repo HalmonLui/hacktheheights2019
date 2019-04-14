@@ -1,0 +1,331 @@
+import React, { Component } from "react";
+import {
+  isSignInPending,
+  loadUserData,
+  Person,
+  getFile,
+  putFile,
+  lookupProfile
+} from "blockstack";
+import ImageUploader from "react-images-upload";
+import Webcam from "react-webcam";
+//import * as utils from "./image-classifier.js";
+import imageClassify from "./image-classifier";
+
+/*
+async function imageClassify(filename) {
+  // Import google cloud client library
+  const vision = require('@google-cloud/vision');
+
+  // Create a client
+  const client = new vision.ImageAnnotatorClient();
+
+  const [result] = await client.labelDetection(filename, timeout=8000);
+
+  const labels = result.labelAnnotations;
+  //console.log('Labels:');
+  //labels.forEach(label => console.log(label.description));
+  // Get the tag with the largest probability in classification
+  const tag = labels[0].description
+  console.log('Tag: \n')
+  console.log(tag)
+
+  return tag;
+
+}
+*/
+
+
+
+
+const avatarFallbackImage =
+  "https://s3.amazonaws.com/onename/avatar-placeholder.png";
+
+export default class Profile extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      person: {
+        name() {
+          return "Anonymous";
+        },
+        avatarUrl() {
+          return avatarFallbackImage;
+        }
+      },
+      username: "",
+      newStatus: "",
+      statuses: [],
+      statusIndex: 0,
+      isLoading: false,
+      pictures: [],
+      newPicture: null,
+      pictureIndex: 0
+    };
+  }
+
+  render() {
+    const { handleSignOut } = this.props;
+    const { person } = this.state;
+    const { username } = this.state;
+
+    const Example = ({ data, name }) => (
+      <img src={`data:image/jpeg;base64,${data}`} id={name} />
+    );
+    const videoConstraints = {
+      width: 1280,
+      height: 720,
+      facingMode: "user"
+    };
+
+    return !isSignInPending() && person ? (
+      <div className="container">
+        <div className="row">
+          <div className="col-md-offset-3 col-md-6">
+            <div className="col-md-12">
+              <div className="avatar-section">
+                <img
+                  src={
+                    person.avatarUrl()
+                      ? person.avatarUrl()
+                      : avatarFallbackImage
+                  }
+                  className="img-rounded avatar"
+                  id="avatar-image"
+                />
+                <div className="username">
+                  <h1>
+                    <span id="heading-name">
+                      {person.name() ? person.name() : "Nameless Person"}
+                    </span>
+                  </h1>
+                  <span>{username}</span>
+                  {this.isLocal() && (
+                    <span>
+                      &nbsp;|&nbsp;
+                      <a onClick={handleSignOut.bind(this)}>(Logout)</a>
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+            {this.isLocal() && (
+              <div className="new-status">
+                <div className="col-md-12">
+                  <textarea
+                    className="input-status"
+                    value={this.state.newStatus}
+                    onChange={e => this.handleNewStatusChange(e)}
+                    placeholder="What's on your mind?"
+                  />
+                </div>
+                <div className="col-md-12 text-right">
+                  <Webcam
+                    audio={false}
+                    height={350}
+                    ref={this.setRef}
+                    screenshotFormat="image/jpeg"
+                    width={350}
+                    videoConstraints={videoConstraints}
+                  />
+                  <button onClick={this.capture}>Capture photo</button>
+                  <button
+                    className="btn btn-primary btn-lg"
+                    onClick={e => this.handleNewStatusSubmit(e)}
+                  >
+                    Submit
+                  </button>
+                </div>
+                <input
+                  type="file"
+                  name="pic"
+                  accept="image/*"
+                  onChange={e => this.handleNewImageChange(e)}
+                />
+                <div className="col-md-12 text-right">
+                  <button
+                    className="btn btn-primary btn-lg"
+                    onClick={e => this.handleNewImageSubmit(e)}
+                  >
+                    Image
+                  </button>
+                </div>
+              </div>
+            )}
+            <div className="col-md-12 statuses" id="statuses">
+              {this.state.isLoading && <span>Loading...</span>}
+              {this.state.statuses.map(status => (
+                <div className="status" key={status.id}>
+                  {status.text}
+                </div>
+              ))}
+              {this.state.pictures.map((item, index) => {
+                return (
+                  <div className="box" key={index}>
+                    <div>
+                      <img src={`data:image/jpeg;base64,${item.text}`} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </div>
+    ) : null;
+  }
+
+  componentWillMount() {
+    this.setState({
+      person: new Person(loadUserData().profile),
+      username: loadUserData().username
+    });
+  }
+
+  componentDidMount() {
+    this.fetchData();
+  }
+
+  handleNewStatusChange(event) {
+    this.setState({ newStatus: event.target.value });
+  }
+
+  handleNewImageChange(event) {
+    var files = event.target.files;
+    var file = files[0];
+
+    if (files && file) {
+      var reader = new FileReader();
+
+      reader.onload = function(readerEvt) {
+        var binaryString = readerEvt.target.result;
+        var binaryResult = btoa(binaryString);
+        this.setState({ newPicture: binaryResult });
+        const tagResult = imageClassify(binaryString);
+        this.setState({tag: tagResult});
+      }.bind(this);
+
+      reader.readAsBinaryString(file);
+    }
+  }
+
+  handleNewStatusSubmit(event) {
+    this.saveNewStatus(this.state.newStatus);
+    this.setState({
+      newStatus: ""
+    });
+  }
+  handleNewImageSubmit(event) {
+    this.saveNewImage(this.state.newPicture);
+    this.setState({
+      newPicture: null
+    });
+  }
+  saveNewImage(pictureText) {
+    let pictures = this.state.pictures;
+
+    let picture = {
+      id: this.state.pictureIndex++,
+      text: pictureText,
+      tag: this.tag,
+      created_at: Date.now()
+    };
+
+    const text = this.state.newPicture;
+    //item.push({ text });
+    //this.setState({ itemArray: item });
+
+    pictures.unshift(picture);
+    const options = { encrypt: false };
+    putFile("picture1.json", JSON.stringify(pictures), options).then(() => {
+      console.log("put the files");
+      console.log(pictures);
+      this.setState({
+        pictures: pictures
+      });
+    });
+  }
+
+  saveNewStatus(statusText) {
+    let statuses = this.state.statuses;
+
+    let status = {
+      id: this.state.statusIndex++,
+      text: statusText.trim(),
+      created_at: Date.now()
+    };
+
+    statuses.unshift(status);
+    const options = { encrypt: false };
+    putFile("statuses.json", JSON.stringify(statuses), options).then(() => {
+      this.setState({
+        statuses: statuses
+      });
+    });
+  }
+  fetchData() {
+    this.setState({ isLoading: true });
+    if (this.isLocal()) {
+      const options = { decrypt: false };
+      getFile("statuses.json", options)
+        .then(file => {
+          var statuses = JSON.parse(file || "[]");
+          console.log("Got the statuses");
+          this.setState({
+            person: new Person(loadUserData().profile),
+            username: loadUserData().username,
+            statusIndex: statuses.length,
+            statuses: statuses
+          });
+        })
+        .then(e => {
+          getFile("picture1.json", options).then(file => {
+            console.log(file);
+            var pictures = JSON.parse(file || "[]");
+            console.log(pictures);
+            console.log("got the pictures");
+            this.setState({
+              pictures: pictures
+            });
+          });
+        })
+        .finally(() => {
+          this.setState({ isLoading: false });
+        });
+    } else {
+      const username = this.props.match.params.username;
+
+      lookupProfile(username)
+        .then(profile => {
+          this.setState({
+            person: new Person(profile),
+            username: username
+          });
+        })
+        .catch(error => {
+          console.log("could not resolve profile");
+        });
+      const options = { username: username, decrypt: false };
+      getFile("statuses.json", options)
+        .then(file => {
+          var statuses = JSON.parse(file || "[]");
+          this.setState({
+            statusIndex: statuses.length,
+            statuses: statuses
+          });
+        })
+        .catch(error => {
+          console.log("could not fetch statuses");
+        })
+        .finally(() => {
+          this.setState({ isLoading: false });
+        });
+    }
+  }
+
+  //Check if viewing local user profile or other's profile
+  isLocal() {
+    return this.props.match.params.username ? false : true;
+  }
+}
