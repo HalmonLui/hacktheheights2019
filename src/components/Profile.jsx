@@ -126,16 +126,10 @@ export default class Profile extends Component {
                   {status.text}
                 </div>
               ))}
-              {this.state.pictures.map(picture => (
-                <div className="status" key={picture.id}>
-                  <Example imageURL={picture.text} />
-                </div>
-              ))}
-              {this.state.itemArray.map((item, index) => {
+              {this.state.pictures.map((item, index) => {
                 return (
                   <div className="box" key={index}>
                     <div>
-                      <p>{item.text}</p>
                       <img src={`data:image/jpeg;base64,${item.text}`} />
                     </div>
                   </div>
@@ -161,11 +155,6 @@ export default class Profile extends Component {
 
   handleNewStatusChange(event) {
     this.setState({ newStatus: event.target.value });
-  }
-
-  base64toImage() {
-    console.log(this.state.newPicture);
-    document.getElementById("test").imageURL = this.state.newPicture;
   }
 
   handleNewImageChange(event) {
@@ -205,11 +194,12 @@ export default class Profile extends Component {
       text: pictureText,
       created_at: Date.now()
     };
-    const item = this.state.itemArray;
+
     const text = this.state.newPicture;
-    item.push({ text });
-    this.setState({ itemArray: item });
-    pictures.unshift(picture);
+    //item.push({ text });
+    //this.setState({ itemArray: item });
+
+    pictures.unshift({ text });
     const options = { encrypt: false };
     putFile("picture.json", pictures, options).then(() => {
       this.setState({
