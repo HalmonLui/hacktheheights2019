@@ -18,7 +18,7 @@ body {
 }
 .landing-heading {
   font-family: "Lato", Sans-Serif;
-  font-weight: 400;
+  font-weight: 700;
 }
 
 /* Buttons */
@@ -141,4 +141,14 @@ textarea {
 #statuses {
   height: 50vh;
   overflow-y: scroll;
+}
+
+/* Landing Panel */
+.panel-landing {
+  display: flex;
+  background-image: linear-gradient(15deg, #13547a 0%, #80d0c7 100%);
+  height: 100vh;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
 }
